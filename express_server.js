@@ -70,6 +70,11 @@ const longURL = urlDatabase[req.params.id];
 res.redirect(longURL);
 });
 
+app.post('/urls/:id/delete',(req, res) => {
+  delete urlDatabase[req.params.id];
+
+  res.redirect('/urls');
+})
 
 
 
