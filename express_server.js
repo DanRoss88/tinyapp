@@ -1,8 +1,8 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-app.set('view engine', 'ejs');
 
+// for generating random string of characters for short url 
 const generateRandomString = () => {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -13,6 +13,9 @@ const generateRandomString = () => {
   }
   return result;
 }
+// to read encoded url
+app.use(express.urlencoded({ extended: true }));
+app.set('view engine', 'ejs');
 
 
 const urlDatabase = {
@@ -20,14 +23,21 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
+app.listen(PORT, () => {
+  console.log(`tinyapp listening on port ${PORT}!`);
+});
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
 
 // index page
 app.get('/', (req, res) => {
   res.render('pages/index');
 });
 
-app.use(express.urlencoded({ extended: true }));
-  
 // route for urls
 app.get('/urls', (req, res) => {
   const templateVars = {urls: urlDatabase};
@@ -36,14 +46,7 @@ app.get('/urls', (req, res) => {
 
 // third route for url/new - routes to be ordered from most specific to least
 app.get("/urls/new", (req, res) => {
-  
   res.render("urls_new");
-});
-
-// post for URL submission
-app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
 
 
@@ -53,14 +56,24 @@ app.get('/urls/:id', (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+// post for URL submission
+app.post("/urls", (req, res) => {
+  const uniqueID = generateRandomString();
+ urlDatabase[uniqueID] = req.body.longURL;
+
+res.redirect(`/urls/${uniqueID}`);
 });
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+// redirect location of short url submission
+app.get('/u/:id', (req, res) => {
+const longURL = urlDatabase[req.params.id];
+
+res.redirect(longURL);
 });
 
-app.listen(PORT, () => {
-  console.log(`tinyapp listening on port ${PORT}!`);
-});
+
+
+
+
+
+
 
