@@ -33,11 +33,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// index page
-app.get('/', (req, res) => {
-  res.render('pages/index');
-});
-
 // route for urls
 app.get('/urls', (req, res) => {
   const templateVars = {urls: urlDatabase};
@@ -56,6 +51,13 @@ app.get('/urls/:id', (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+
+app.post('/urls/:id',(req, res) => {
+   urlDatabase[req.params.id] = req.body.url;
+
+  res.redirect('/urls');
+})
+
 // post for URL submission
 app.post("/urls", (req, res) => {
   const uniqueID = generateRandomString();
@@ -63,22 +65,18 @@ app.post("/urls", (req, res) => {
 
 res.redirect(`/urls/${uniqueID}`);
 });
+
 // redirect location of short url submission
 app.get('/u/:id', (req, res) => {
 const longURL = urlDatabase[req.params.id];
 
 res.redirect(longURL);
 });
-
 app.post('/urls/:id/delete',(req, res) => {
   delete urlDatabase[req.params.id];
 
   res.redirect('/urls');
 })
-
-
-
-
 
 
 
