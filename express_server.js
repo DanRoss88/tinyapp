@@ -1,6 +1,27 @@
+
+
+
+// ******** Server Config ******** //
+
+
 const express = require("express");
 const app = express();
+const cookieParser = require('cookie-parser');
 const PORT = 8080; // default port 8080
+app.set('view engine', 'ejs');
+
+
+
+
+
+// ******* Middleware ******** //
+
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser())
+
+
+
+
 
 // for generating random string of characters for short url 
 const generateRandomString = () => {
@@ -13,41 +34,50 @@ const generateRandomString = () => {
   }
   return result;
 }
-// to read encoded url
-app.use(express.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');
 
 
+//// base //
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+// ************** Home Page ********************* //
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-app.listen(PORT, () => {
-  console.log(`tinyapp listening on port ${PORT}!`);
-});
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
 // route for urls
 app.get('/urls', (req, res) => {
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase
+  
+  };
   res.render("urls_index", templateVars);
 });
 
+
+// New URL
+
+
 // third route for url/new - routes to be ordered from most specific to least
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("urls_new", templateVars);
 });
 
 
 // second route for url/id
 app.get('/urls/:id', (req, res) => {
-  const templateVars = {id: req.params.id, longURL : urlDatabase[req.params.id]};
+  const templateVars = {
+   username: req.cookies["username"],
+    id: req.params.id, 
+   longURL : urlDatabase[req.params.id]
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -77,11 +107,33 @@ app.post('/urls/:id/delete',(req, res) => {
 
   res.redirect('/urls');
 });
+// ******* LOGIN *********** //
+app.post('/login', (req, res)  => {
+const username = req.body.username; 
 
-app.post('/urls/login', (req, res)  => {
 res.cookie("username", username)
 res.redirect('/urls')
 })
 
+app.post('/logout', (req, res) => {
+  res.clearCookie("username");
+  res.redirect('/urls')
+
+})
+// passwords check validity
+ /* if (password === req.body.password){
+    res.cookie('username', username); // storing username after passwords validity
+    res.send('Nice! You are successfully logged in.'); // response after
+  }
+  else{
+    res.send('Failed to log in!');  // if password checks fail
+  }
+
+*/
 
 
+// ********** Server Listen ***** //
+
+app.listen(PORT, () => {
+  console.log(`tinyapp listening on port ${PORT}!`);
+});
