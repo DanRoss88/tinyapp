@@ -17,7 +17,7 @@ const urlsForUser = function(urlDB, userID) {
 const getUserByEmail = function(userDB, email) {
   for (const user in userDB) {
     if (userDB[user].email === email) {
-      return userDB[user];
+      return user;
     }
    }
   return null; 

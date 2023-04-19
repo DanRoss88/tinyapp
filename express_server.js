@@ -6,7 +6,7 @@ const express = require("express");
 const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
 const app = express();
-const salt = bcrypt.genSaltSync(10);
+
 
 
 const PORT = 8080; // default port 8080
@@ -38,15 +38,15 @@ const urlDatabase = {
 };
 
 const users = {
-  'jif87e': {
-    id: "jif87e",
+  'user1': {
+    id: "user1",
     email: "a@123.com",
-    password: "a123",
+    password: bcrypt.hashSync("a123", 10)
   },
-  '9huijk': {
-    id: "9huijk",
+  'user2': {
+    id: "user2",
     email: "b@111.com",
-    password: "b111",
+    password: bcrypt.hashSync("b111", 10)
   },
 };
 
@@ -85,17 +85,17 @@ app.post('/login', (req, res) => {
   const findUser = getUserByEmail(users, req.body.email);
 
   if (!findUser) {
-    return res.status().send(`Status Code: ${res.statusCode}. User with this email cannot be found.`);
+    return res.status(403).send("User with this email cannot be found");
   }
   else if (!bcrypt.compareSync(req.body.password, users[findUser].password)) {
-    return res.status().send(`Status Code: ${res.statusCode}. Password incorrect`);
+    return res.status(403).send("Password incorrect");
   }
 
   req.session['user_id'] = users[findUser];
   res.redirect('/urls');
 });
 
-//// ***** Logout ****** /////
+////////////// ***** Logout ****** /////////////////
 
 app.post('/logout', (req, res) => {
 
@@ -124,15 +124,15 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
 
   if (!req.body.email || !req.body.password) {
-    return res.status().send(`Status Code:${res.statusCode}. Email or Password is empty.`);
+    return res.status(400).send("Email or Password is invalid");
   };
   if (getUserByEmail(users, req.body.email)) {
-    return res.status().send(`Status Code:${res.statusCode}.${req.body.email} has already been registered.`);
+    return res.status(400).send("Email is already registered");
   }
   
   const id = generateRandomString();
   const email = req.body.email;
-  const password = bcrypt.hashSync(req.body.password, salt);
+  const password = bcrypt.hashSync(req.body.password, 10);
    
   users[id] = {
     id,
@@ -172,7 +172,7 @@ const templateVars = {
 app.post("/urls", (req, res) => {
 
   if (!req.session['user_id']) {
-    return res.status().send(`Status Code:${res.statusCode}. Please login or Register`);
+    return res.status(403).send("Please login or Register");
   }
 
   const longID = req.body.longURL;
@@ -208,7 +208,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 
   if (!req.session['user_id'] || req.session['user_id'].id !== urlDatabase[shortID].userID) {
-    return res.status().send(`Status Code: ${res.statusCode}. Not Authorized`);
+    return res.status(403).send("Not Authorized");
   }
 
   delete urlDatabase[shortID];
@@ -222,11 +222,11 @@ app.get('/urls/:shortURL', (req, res) => {
   const shortID = req.params.shortURL;
 
   if (!req.session['user_id'] || req.session['user_id'].id !== urlDatabase[shortID].userID) {
-    return res.status().send(`Status Code: ${res.statusCode}. Please sign in to continue`);
+    return res.status(403).send("Not Authorized");
   }
 
   if (!urlDatabase[shortID]) {
-    return res.status().send(`Status Code: ${res.statusCode}. URL not found`);
+    return res.status(404).send("URL not found");
   }
 
   
@@ -246,7 +246,7 @@ app.post('/urls/:shortURL', (req, res) => {
   const shortID = req.params.shortURL;
  
   if (!req.session['user_id'] || req.session['user_id'].id !== urlDatabase[shortID].userID) {
-    return res.status().send(`Status Code: ${res.statusCode}. Not Authorized`);
+    return res.status(403).send("Not Authorized");
   }
   
   const longID = req.body.longURL
@@ -260,7 +260,7 @@ app.get('/u/:shortURL', (req, res) => {
   const shortID = req.params.shortURL;
 
   if (!urlDatabase[shortID]) {
-    return res.status().send(`Status Code:${res.statusCode}. URL not found`);
+    return res.status(404).send("URL not found");
   }
 
   const longURL = urlDatabase[shortID].longURL;
