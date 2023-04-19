@@ -76,7 +76,7 @@ app.get('/login', (req, res) => {
 });
 
 ///////////***********LOGIN ATTEMPT *************///////////
-////////CREATE
+////////EDIT
 app.post('/login', (req, res) => {
 
   const findUser = getUserByEmail(users, req.body.email);
@@ -93,7 +93,7 @@ app.post('/login', (req, res) => {
 });
 
 ////////////// ********** LOGOUT ********* /////////////////
-/////READ
+/////EDIT
 app.post('/logout', (req, res) => {
 
   req.session = null;
@@ -117,7 +117,7 @@ app.get('/register', (req, res) => {
 });
 
 ///////// *********** REGISTRATION POST ********* ///////////
-//////CREATE/////////
+//////ADD/////////
 app.post('/register', (req, res) => {
 
   if (!req.body.email || !req.body.password) {
@@ -144,6 +144,7 @@ app.post('/register', (req, res) => {
 
 //////////////////********** MAIN ************///////////////////
 ////// ROUTE FOR MAIN /////
+//////BROWSE
 app.get('/urls', (req, res) => {
 
   let urlOb = {};
@@ -162,7 +163,7 @@ app.get('/urls', (req, res) => {
 
 
 ////////////////// *********** URLs *************//////////////////
-/////////CREATE
+/////////ADD
 app.post("/urls", (req, res) => {
 
   if (!req.session['user_id']) {
@@ -197,6 +198,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 ////***** DELETE URLs ******////
+///DELETE
 app.post('/urls/:shortURL/delete', (req, res) => {
 
   const shortID = req.params.shortURL;
@@ -236,7 +238,7 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 /////////////////// EDIT FORM //////////////////////
-////////CREATE
+////////EDIT
 app.post('/urls/:shortURL', (req, res) => {
 
   const shortID = req.params.shortURL;
