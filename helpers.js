@@ -1,7 +1,6 @@
 
 
 ///// ************* FUNC Storage ******** //////////
-
 const urlPrefix = function(longID) {
   if (!longID.includes("http://")){
     longID = "http://" + longID;
@@ -9,22 +8,17 @@ const urlPrefix = function(longID) {
 return longID;
 };
 
-
-
-
-
 const urlsForUser = function(urlDB, userID) {
-  if (!userID) {
-    return undefined;
-  };
   let userURLs = {};
   for (const url in urlDB) {
     if (urlDB[url].userID === userID) {
-      userURLs[url] = urlDB[url];
+      userURLs[url] = {
+        longURL: urlDB[url].longURL
+      };
     }
   }
   return userURLs;
-}
+};
 
 const getUserByEmail = function(userDB, email) {
   for (const user in userDB) {
