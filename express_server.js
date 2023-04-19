@@ -265,7 +265,7 @@ app.post('/urls/:id', (req, res) => {
   }
 
   if (!userID || userID !== urlDatabase[urlID].userID) {
-    return res.status(403).send(`Status Code: ${res.statusCode}. Not Authorized`);
+    return res.status(401).send(`Status Code: ${res.statusCode}. Not Authorized`);
   }
 
 
