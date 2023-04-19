@@ -6,7 +6,7 @@ const express = require("express");
 const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
 const app = express();
-
+const salt = bcrypt.genSalt(10);
 const PORT = 8080; // default port 8080
 app.set('view engine', 'ejs');
 
@@ -39,12 +39,12 @@ const users = {
   'user1': {
     id: "user1",
     email: "a@123.com",
-    password: bcrypt.hashSync("a123", 10)
+    password: "$2a$10$C2mEXCIkm0yIgjiwFAq4iuGPn3N10TetpcMnkQaHplbzLVXubmCWa'"
   },
   'user2': {
     id: "user2",
     email: "b@111.com",
-    password: bcrypt.hashSync("b111", 10)
+    password: "$2a$10$Y1KjOyNC65By.1DTp.p1kubJxzrFUFxlhPPoZadq3kxVH1ADKYBA2"
   },
 };
 
@@ -59,9 +59,6 @@ app.get('/', (req, res) => {
   res.redirect('/login');
 });
 
-//app.get("/urls.json", (req, res) => {
-//res.json(urlDatabase);
-//});
 
 /////////////// ************************* LOGIN ******************** ////////////////////
 /////////READ
@@ -132,7 +129,7 @@ app.post('/register', (req, res) => {
 
   const id = generateRandomString();
   const email = req.body.email;
-  const password = bcrypt.hashSync(req.body.password, 10);
+  const password = bcrypt.hashSync(req.body.password, salt);
 
   users[id] = {
     id,
@@ -158,7 +155,6 @@ app.get('/urls', (req, res) => {
     user: req.session['user_id'],
     urls: urlOb
   };
-
 
 
   res.render("urls_index", templateVars);
