@@ -12,7 +12,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 app.set('view engine', 'ejs');
 
-const { urlsForUser, getUserByEmail, generateRandomString } = require('./helpers');
+const { urlsForUser, getUserByEmail, generateRandomString, urlPrefix } = require('./helpers');
 
 // ******* Middleware ******** //
 
@@ -28,12 +28,14 @@ app.use(cookieSession({
 //// database //
 const urlDatabase = {
   "b2xVn2": {
+    shortURL :"b2xVn2",
     longURL: "http://www.lighthouselabs.ca",
-    userID: "b2xVn2"
+    userID: "userID1"
   },
   "9sm5xK": {
+    shortURL: "9sm5xK",
     longURL: "http://www.google.com",
-    userID: "9sm5xK"
+    userID: "userID2"
   }
 };
 
@@ -175,12 +177,13 @@ app.post("/urls", (req, res) => {
     return res.status(403).send("Please login or Register");
   }
 
-  const longID = req.body.longURL;
+  const longID = urlPrefix(req.body.longURL);
   const shortURL = generateRandomString();
 
   urlDatabase[shortURL] = { 
+    shortURL: shortURL,
     longURL: longID,
-     userID: req.session['user_id'].id
+    userID: req.session['user_id'].id
     };
 
   res.redirect(`/urls/${shortURL}`);
@@ -232,7 +235,7 @@ app.get('/urls/:shortURL', (req, res) => {
   
 
   const templateVars = {
-    user: req.session['user_id'],
+    userID: req.session['user_id'],
     shortURL: shortID,
     longURL: urlDatabase[shortID].longURL
   };
@@ -249,7 +252,7 @@ app.post('/urls/:shortURL', (req, res) => {
     return res.status(403).send("Not Authorized");
   }
   
-  const longID = req.body.longURL
+  const longID = urlPrefix(req.body.longURL);
   urlDatabase[shortID].longURL = longID;
   res.redirect('/urls');
 });
