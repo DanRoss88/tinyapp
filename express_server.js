@@ -3,10 +3,10 @@
 
 const cookieSession = require('cookie-session');
 const express = require("express");
+const methodOverride = require('method-override');
 const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
 const app = express();
-const salt = bcrypt.genSalt(10);
 const PORT = 8080; // default port 8080
 app.set('view engine', 'ejs');
 
@@ -15,6 +15,7 @@ const { urlsForUser, getUserByEmail, generateRandomString, urlPrefix } = require
 ///////// *******/ MIDDLEWARE /******** ///////////
 
 app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride('_method'));
 app.use(morgan('dev'));
 app.use(cookieSession({
   name: 'session',
@@ -129,7 +130,7 @@ app.post('/register', (req, res) => {
 
   const id = generateRandomString();
   const email = req.body.email;
-  const password = bcrypt.hashSync(req.body.password, salt);
+  const password = bcrypt.hashSync(req.body.password, 10);
 
   users[id] = {
     id,
@@ -197,9 +198,10 @@ app.get("/urls/new", (req, res) => {
   return res.render("urls_new", templateVars);
 });
 
+
 ////***** DELETE URLs ******////
 ///DELETE
-app.post('/urls/:shortURL/delete', (req, res) => {
+app.delete('/urls/:shortURL', (req, res) => {
 
   const shortID = req.params.shortURL;
 
@@ -239,7 +241,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
 /////////////////// EDIT FORM //////////////////////
 ////////EDIT
-app.post('/urls/:shortURL', (req, res) => {
+app.put('/urls/:shortURL', (req, res) => {
 
   const shortID = req.params.shortURL;
 
